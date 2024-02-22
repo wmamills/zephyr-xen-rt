@@ -1,0 +1,17 @@
+/delete-node/ &xen_hvc;
+
+/ {
+    interrupt-parent = <&gic>;
+    #address-cells = <2>;
+    #size-cells = <2>;
+
+    chosen {
+        zephyr,console = &xen_consoleio_hvc;
+        zephyr,shell-uart = &xen_consoleio_hvc;
+    };
+
+    xen_consoleio_hvc: hvc {
+        compatible = "xen,hvc-uart";
+        status = "okay";
+    };
+};
