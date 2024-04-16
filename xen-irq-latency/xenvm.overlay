@@ -11,7 +11,7 @@
     };
 
     xen_consoleio_hvc: hvc {
-        compatible = "xen,hvc-uart";
+        compatible = "xen,hvc-consoleio";
         status = "okay";
     };
 };
