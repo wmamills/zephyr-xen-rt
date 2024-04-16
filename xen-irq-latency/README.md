@@ -14,10 +14,10 @@ which requires using debug version of Xen or passing "guest_loglvl=debug" to
 the Xen command line.
 
 ## Build app for GICv2 board
-$ west build -p -b xenvm <path to zephyr-apps/xen-irq-latency>
+$ west build -p -b xenvm <path to zephyr-apps/xen-irq-latency> -DDTC_OVERLAY_FILE=dom0less.overlay
 
 ## Build app for GICv3 board
-$ west build -p -b xenvm_gicv3 <path to zephyr-apps/xen-irq-latency>
+$ west build -p -b xenvm_gicv3 <path to zephyr-apps/xen-irq-latency> -DDTC_OVERLAY_FILE=dom0less.overlay
 
 ## ImageBuilder config file (example for a single dom0less domU on ZCU102)
 
