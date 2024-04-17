@@ -4,21 +4,20 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#include <zephyr/timeout_q.h>
-#include <zephyr/zephyr.h>
-#include <zephyr/timeout_q.h>
+#include <zephyr/kernel.h>
+#include <zephyr/sys/barrier.h>
 #include <string.h>
 
 #define asm __asm__
 #define ssize_t size_t
+#define dmb barrier_dsync_fence_full
 #define mb dmb
 #include "xen.h"
 
-static struct _timeout timeout;
 static struct evtchn_send send;
 static char *shared_mem = (char *)0x7fe01000;
 
-static void timer_expired(struct _timeout *t)
+static void timer_expired(struct k_timer *p_timer)
 {
 	uint32_t timestamp = k_cycle_get_32();
 
@@ -27,10 +26,12 @@ static void timer_expired(struct _timeout *t)
 	xen_hypercall(EVTCHNOP_send, (unsigned long)&send,
 			0, 0, HYPERVISOR_event_channel_op);
 
-	z_add_timeout(&timeout, timer_expired, Z_TIMEOUT_MS(5000));
+	k_timer_start(p_timer, K_MSEC(5000), K_NO_WAIT);
 }
 
-void main(void)
+K_TIMER_DEFINE(my_timer, timer_expired, NULL);
+
+int main(void)
 {
 	int ret = 0;
 	uint16_t remote_domid = 2;
@@ -54,8 +55,8 @@ void main(void)
 			0, 0, HYPERVISOR_event_channel_op);
 	dmb();
 	if (ret)
-		return;
+		return 1;
 	send.port = bind.local_port;
 
-	z_add_timeout(&timeout, timer_expired, Z_TIMEOUT_MS(5000));
+	k_timer_start(&my_timer, K_MSEC(5000), K_NO_WAIT);
 }
